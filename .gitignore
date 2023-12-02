@@ -1,2 +1,7 @@
 .idea
 *.iml
+
+# maven
+**/target/
+# avoid personal puzzles to be committed
+**/src/main/resources/*
