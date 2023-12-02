@@ -6,24 +6,18 @@ var part1 = Part1();
 var part2 = Part2();
 Console.WriteLine((part1, part2, sw.Elapsed));
 
-object Part1()
-{
-    var (red, green, blue) = (12, 13, 14);
-    var possible =
+object Part1() => (
         from game in games
-        where game.IsPossible(red, green, blue)
-        select game;
-    return possible.Sum(g => g.Id);
-}
+        where game.IsPossible(12, 13, 14)
+        select game
+        ).Sum(g => g.Id);
 
-object Part2()
-{
-    var query =
+int Part2() =>
+    (
         from game in games
         let fewest = game.Fewest()
-        select fewest.red * fewest.green * fewest.blue;
-    return query.Sum();
-}
+        select fewest.red * fewest.green * fewest.blue
+    ).Sum();
 
 readonly record struct Game(int Id, Grab[] Grabs)
 {
@@ -44,15 +38,17 @@ readonly record struct Grab(int Red, int Green, int Blue)
     public static Grab Parse(string s)
     {
         var split = s.Split(", ");
+
         int r = 0, g = 0, b = 0;
         foreach (var item in split)
         {
-            var components = item.Split(' ');
-            (r, g, b) = components[1] switch
+            var component = Regexes.ComponentRegex().Match(item);
+            var n = int.Parse(component.Groups["n"].Value);
+            (r, g, b) = component.Groups["color"].Value switch
             {
-                "red" => (int.Parse(components[0]), g, b),
-                "green" => (r, int.Parse(components[0]), b),
-                "blue" => (r, g, int.Parse(components[0]))
+                "red" => (n, g, b),
+                "green" => (r, n, b),
+                "blue" => (r, g, n)
             };
         }
 
@@ -66,5 +62,7 @@ static partial class Regexes
 {
     [GeneratedRegex(@"^Game (?<id>\d+): (?<grabs>.+)$")]
     public static partial Regex GameRegex();
+    [GeneratedRegex(@"^(?<n>\d+) (?<color>.+)$")]
+    public static partial Regex ComponentRegex();
 }
 
