@@ -1,0 +1,15 @@
+{
+  "name": "day3",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "main": "part1.js",
+  "scripts": {
+    "test": "vitest"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "vitest": "^0.34.6"
+  }
+}
