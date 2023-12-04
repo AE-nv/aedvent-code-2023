@@ -357,6 +357,9 @@ MigrationBackup/
 #maven files
 **/target/
 
+#jqwik files
+**/.jqwik-database
+
 # Visual studio code config
 .vscode/
 
