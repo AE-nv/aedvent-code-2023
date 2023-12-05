@@ -1,17 +1,14 @@
 export function part1(input) {
   const { numbers, symbols } = parseInput(input);
-  const parts = [];
-  for (let line = 0; line < input.length; line++) {
-    numbers[line].forEach((number) => {
-      const sliceStart = Math.max(line - 1, 0);
-      const sliceEnd = Math.min(line + 2, input.length);
-      const surroundingSymbolLists = symbols.slice(sliceStart, sliceEnd);
-      if (isPart(number, surroundingSymbolLists)) {
-        parts.push(number);
-      }
-    });
-  }
-  return parts
+  return numbers
+    .flatMap((numbersOfLine, line) =>
+      numbersOfLine.filter((number) => {
+        const sliceStart = Math.max(line - 1, 0);
+        const sliceEnd = Math.min(line + 2, input.length);
+        const surroundingSymbolLists = symbols.slice(sliceStart, sliceEnd);
+        return isPart(number, surroundingSymbolLists);
+      })
+    )
     .map((part) => part.number)
     .reduce((acc, curr) => (curr += acc), 0);
 }
