@@ -1,27 +1,25 @@
-import { expect, test, describe } from 'vitest';
+import { expect, test, describe } from "vitest";
 import {
-  findPotentialGearIndexes,
-  getGearRatio,
-  getSurroundingChars,
-  isAdjacentToSymbol,
-  isAnyCharSymbol,
-  isPartOfPartNumber,
-  isSymbol,
+  parseInput,
+  extractNumbers,
   part2,
-} from './part2';
+  extractSymbols,
+  isPart,
+  isGear,
+} from "./part2";
 
-test('example case', () => {
+test("example case", () => {
   const input = [
-    '467..114..',
-    '...*......',
-    '..35..633.',
-    '......#...',
-    '617*......',
-    '.....+.58.',
-    '..592.....',
-    '......755.',
-    '...$.*....',
-    '.664.598..',
+    "467..114..",
+    "...*......",
+    "..35..633.",
+    "......#...",
+    "617*......",
+    ".....+.58.",
+    "..592.....",
+    "......755.",
+    "...$.*....",
+    ".664.598..",
   ];
 
   const output = part2(input);
@@ -29,178 +27,85 @@ test('example case', () => {
   expect(output).toBe(467835);
 });
 
-test('isAnyCharSymbol', () => {
-  expect(isAnyCharSymbol(['.', '1', '2'])).toBeFalsy();
-  expect(isAnyCharSymbol(['.', 'f', '2'])).toBeTruthy();
-});
-
-describe('isSymbol', () => {
-  test('empty char', () => {
-    expect(isSymbol('.')).toBeFalsy();
+describe("extractNumbers", () => {
+  test("no numbers", () => {
+    const line = "..*......";
+    const result = extractNumbers(line);
+    expect(result).toStrictEqual([]);
   });
 
-  test('number', () => {
-    expect(isSymbol('1')).toBeFalsy();
-  });
-
-  test('symbol', () => {
-    expect(isSymbol('$')).toBeTruthy();
+  test("numbers", () => {
+    const line = "467..114..";
+    const result = extractNumbers(line);
+    expect(result).toStrictEqual([
+      { start: 0, end: 2, number: 467 },
+      { start: 5, end: 7, number: 114 },
+    ]);
   });
 });
 
-describe('GetSurroundingChars', () => {
-  test('middle of line', () => {
-    const result = getSurroundingChars(2, 'abcdef');
-    expect(result).toStrictEqual(['b', 'c', 'd']);
+describe("extractSymbols", () => {
+  test("no symbols", () => {
+    const line = "467..114..";
+    const result = extractSymbols(line);
+    expect(result).toStrictEqual([]);
   });
 
-  test('start of line', () => {
-    const result = getSurroundingChars(0, 'abcdef');
-    expect(result).toStrictEqual(['.', 'a', 'b']);
-  });
-
-  test('end of line', () => {
-    const result = getSurroundingChars(5, 'abcdef');
-    expect(result).toStrictEqual(['e', 'f', '.']);
+  test("symbols", () => {
+    const line = "..*......";
+    const result = extractSymbols(line);
+    expect(result).toStrictEqual([{ position: 2 }]);
   });
 });
 
-describe('isAdjacentToSymbol', () => {
-  test('previous char is symbol', () => {
-    const line = '$1.';
-    const previousLine = '...';
-    const nextLine = '...';
+test("parseInput", () => {
+  const input = [
+    "467..114..",
+    "...*......",
+    "..35..633.",
+    "......#...",
+    "617*......",
+    ".....+.58.",
+    "..592.....",
+    "......755.",
+    "...$.*....",
+    ".664.598..",
+  ];
 
-    expect(isAdjacentToSymbol(1, line, previousLine, nextLine)).toBeTruthy();
-  });
-
-  test('next char is symbol', () => {
-    const line = '.1$';
-    const previousLine = '...';
-    const nextLine = '...';
-
-    expect(isAdjacentToSymbol(1, line, previousLine, nextLine)).toBeTruthy();
-  });
-
-  test('previous line has diagonal symbol to left', () => {
-    const line = '.1.';
-    const previousLine = '$..';
-    const nextLine = '...';
-
-    expect(isAdjacentToSymbol(1, line, previousLine, nextLine)).toBeTruthy();
-  });
-
-  test('previous line has diagonal symbol to right', () => {
-    const line = '.1.';
-    const previousLine = '..#';
-    const nextLine = '...';
-
-    expect(isAdjacentToSymbol(1, line, previousLine, nextLine)).toBeTruthy();
-  });
-
-  test('previous line has symbol at index', () => {
-    const line = '.1.';
-    const previousLine = '.$.';
-    const nextLine = '...';
-
-    expect(isAdjacentToSymbol(1, line, previousLine, nextLine)).toBeTruthy();
-  });
-
-  test('next line has diagonal symbol to left', () => {
-    const line = '.1.';
-    const previousLine = '...';
-    const nextLine = '$..';
-
-    expect(isAdjacentToSymbol(1, line, previousLine, nextLine)).toBeTruthy();
-  });
-
-  test('next line has diagonal symbol to right', () => {
-    const line = '.1.';
-    const previousLine = '...';
-    const nextLine = '^..';
-
-    expect(isAdjacentToSymbol(1, line, previousLine, nextLine)).toBeTruthy();
-  });
-
-  test('next line has symbol at index', () => {
-    const line = '.1.';
-    const previousLine = '...';
-    const nextLine = '.$.';
-
-    expect(isAdjacentToSymbol(1, line, previousLine, nextLine)).toBeTruthy();
-  });
-
-  test('No adjacent symbols', () => {
-    const line = '.1.';
-    const previousLine = '...';
-    const nextLine = '...';
-
-    expect(isAdjacentToSymbol(1, line, previousLine, nextLine)).toBeFalsy();
-  });
+  const output = parseInput(input);
+  expect(output.numbers.length).toBe(10);
+  expect(output.numbers[0]).toStrictEqual([
+    { start: 0, end: 2, number: 467 },
+    { start: 5, end: 7, number: 114 },
+  ]);
+  expect(output.symbols[1]).toStrictEqual([{ position: 3 }]);
+  expect(output.potentialGears[1]).toStrictEqual([{ position: 3 }]);
 });
 
-describe('find potential gear indexes', () => {
-  test('1 option', () => {
-    expect(findPotentialGearIndexes('012*')).toStrictEqual([3]);
-  });
-
-  test('no gears', () => {
-    expect(findPotentialGearIndexes('012..#$%')).toStrictEqual([]);
-  });
-
-  test('multiple options', () => {
-    expect(findPotentialGearIndexes('0*2*')).toStrictEqual([1, 3]);
-  });
+test("isPart", () => {
+  const number = { start: 0, end: 2, number: 467 };
+  const surroundingSymbolLists = [[], [{ position: 3 }]];
+  expect(isPart(number, surroundingSymbolLists)).toBeTruthy();
 });
 
-describe('isPartOfPartNumber', () => {
-  test('not a number', () => {
-    const line = '$1.';
-    const previousLine = '...';
-    const nextLine = '...';
+describe("isGear", () => {
+  test("two adjacent parts", () => {
+    const potentialGear = { position: 3 };
+    const surroundingPartsLists = [
+      [{ start: 0, number: 467, end: 2 }],
+      [],
+      [
+        { start: 2, number: 35, end: 3 },
+        { start: 6, number: 633, end: 8 },
+      ],
+    ];
 
-    expect(isPartOfPartNumber(0, line, previousLine, nextLine)).toBeFalsy();
+    expect(isGear(potentialGear, surroundingPartsLists)).toBeTruthy();
   });
 
-  test('not adjacent to symbol', () => {
-    const line = '.1.';
-    const previousLine = '...';
-    const nextLine = '...';
-
-    expect(isPartOfPartNumber(1, line, previousLine, nextLine)).toBeFalsy();
-  });
-
-  test('adjacent to symbol', () => {
-    const line = '.1.';
-    const previousLine = '.$.';
-    const nextLine = '...';
-
-    expect(isPartOfPartNumber(1, line, previousLine, nextLine)).toBeTruthy();
-  });
-});
-
-describe('getGearRatio', () => {
-  test('not a gear symbol', () => {
-    const previousLines = ['..35..633.', '......#...'];
-    const line = '...*......';
-    const nextLines = ['.....+.58.', '..592.....'];
-
-    expect(getGearRatio(0, line, previousLines, nextLines)).toBe(0);
-  });
-
-  test('not a valid gear', () => {
-    const previousLines = ['..........', '467..114..'];
-    const line = '617*......';
-    const nextLines = ['..35..633.', '..........'];
-
-    expect(getGearRatio(3, line, previousLines, nextLines)).toBe(0);
-  });
-
-  test('valid gear', () => {
-    const previousLines = ['..35..633.', '......#...'];
-    const line = '...*......';
-    const nextLines = ['.....+.58.', '..592.....'];
-
-    expect(getGearRatio(3, line, previousLines, nextLines)).toBe(16345);
+  test("less than two adjacent parts", () => {
+    const potentialGear = { position: 3 };
+    const surroundingPartsLists = [[], [{ start: 0, number: 617, end: 2 }], []];
+    expect(isGear(potentialGear, surroundingPartsLists)).toBeFalsy();
   });
 });
