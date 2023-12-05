@@ -7,7 +7,6 @@ var maps = CreateMaps().ToArray();
 var sw = Stopwatch.StartNew();
 var part1 = FindLocations(seeds).Min();
 var part2 = Part2();
-
 Console.WriteLine((part1, part2, sw.Elapsed));
 
 IEnumerable<Map> CreateMaps()
@@ -21,14 +20,12 @@ IEnumerable<Map> CreateMaps()
         {
             yield return new Map(source, destination, items.ToArray());
             items.Clear();
-            source = string.Empty;
-            destination = string.Empty;
+            (source, destination) = (string.Empty, string.Empty);
         }
         else if (line.EndsWith("map:"))
         {
-            var match = Regexes.CardRegex().Match(line);
-            source = match.Groups["source"].Value;
-            destination = match.Groups["destination"].Value;
+            var match = Regexes.MapRegex().Match(line);
+            (source, destination) = (match.Groups["source"].Value, match.Groups["destination"].Value);
         }
         else
         {
@@ -120,12 +117,10 @@ class Map(string source, string destination, MapItem[] ranges)
 
         return value;
     }
-
-    public Map Reverse() => new Map(destination, source, ranges.Select(r => new MapItem(r.destination, r.source, r.length)).ToArray());
 }
 
 static partial class Regexes
 {
     [GeneratedRegex(@"^(?<source>[^-]*)-to-(?<destination>[^ ]*) map:$")]
-    public static partial Regex CardRegex();
+    public static partial Regex MapRegex();
 }
