@@ -1,4 +1,4 @@
-from math import floor as f, sqrt
+from math import floor as f,sqrt
 u=open("i").readlines()
 y=u[1].split()[1:]
 def c(t,d):
