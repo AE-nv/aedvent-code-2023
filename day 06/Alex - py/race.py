@@ -10,8 +10,5 @@ def solve_race(time, dist):
     return len(result)
 
 
-part1 = []
-for race_params in races1:
-    part1.append(solve_race(race_params[0], race_params[1]))
-print("Part 1", part1[0] * part1[1] * part1[2])
-print("Part 2", solve_race(races2[0][0], races2[0][1]))
+print("Part 1", solve_race(*races1[0]) * solve_race(*races1[1]) * solve_race(*races1[2]))
+print("Part 2", solve_race(*races2[0]))
