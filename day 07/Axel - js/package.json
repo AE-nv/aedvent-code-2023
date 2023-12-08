@@ -1,0 +1,17 @@
+{
+  "name": "axel---js",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "vitest"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "vitest": "^1.0.1"
+  },
+  "dependencies": {
+    "core-js": "^3.34.0"
+  }
+}
