@@ -1,13 +1,13 @@
 import pprint
+import copy
 
 
-def find_locations(seeds, mappings):
+def find_locations(seeds, mappings, initial_start, end):
     locations = []
-    print("total seed count: "+str(len(seeds)))
+    # print("total seed count: "+str(len(seeds)))
     for i, seed in enumerate(seeds):
-        start = "seed"
+        start = copy.deepcopy(initial_start)
         start_value = seed
-        end = "location"
         while start != end:
             for key in mappings.keys():
                 if key.startswith(start):
@@ -18,13 +18,13 @@ def find_locations(seeds, mappings):
                     start = key.split("-")[-1]
                     break
             # print(start + ": " + str(start_value))
-        print("finished "+str(i))
+        # print("finished "+str(i))
         locations.append(start_value)
     return locations
 
 
 if __name__ == '__main__':
-    with open("day05_example.txt", 'r') as f:
+    with open("day05.txt", 'r') as f:
         data = f.readlines()
 
     seeds = [int(n) for n in data[0].rstrip().split(":")[1].split()]
@@ -41,17 +41,33 @@ if __name__ == '__main__':
 
     pprint.pprint(mappings)
 
-    locations = find_locations(seeds, mappings)
+    locations = find_locations(seeds, mappings, "seed", "location")
     print(min(locations))
 
-    actual_seeds=[]
-    for i in range(0, len(seeds), 2):
-        for v in range(seeds[i], seeds[i]+seeds[i+1]):
-            actual_seeds.append(v)
-    print(actual_seeds)
-    print(len(actual_seeds))
+    reversed_mapping={}
+    for key, range_descriptions in mappings.items():
+        reversed_key = "-".join(key.split('-')[::-1])
+        reversed_mapping[reversed_key] = []
+        for range_description in range_descriptions:
+            destination, source, range_size = range_description
+            reversed_mapping[reversed_key].append([source, destination, range_size])
 
-    locations = find_locations(actual_seeds, mappings)
-    print(min(locations))
+    # pprint.pprint(reversed_mapping)
+
+    print(find_locations([46], reversed_mapping, "location", "seed"))
+
+    actual_seeds = [(seeds[i], seeds[i+1]) for i in range(0, len(seeds), 2)]
+
+    found=False
+    target = -1
+    while not found:
+        target+=1
+        seed = find_locations([target], reversed_mapping, "location", "seed")[0]
+        for seed_start, seed_range in actual_seeds:
+            if seed_start <= seed < seed_start+seed_range:
+                found=True
+        print(target)
+    print(target)
+    print(seed)
 
 
