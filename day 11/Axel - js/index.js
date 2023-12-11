@@ -1,5 +1,5 @@
 import fs from "fs";
-// import { part2 } from "./part2.js";
+import { part2 } from "./part2.js";
 import { part1 } from "./part1.js";
 
 function readInput() {
@@ -15,11 +15,11 @@ function doPart1() {
 }
 doPart1();
 
-// function doPart2() {
-//   const input = readInput();
+function doPart2() {
+  const input = readInput();
 
-//   const resultPart2 = part2(input);
-//   console.log(`part2: ${resultPart2}`);
-// }
+  const resultPart2 = part2(input);
+  console.log(`part2: ${resultPart2}`);
+}
 
-// doPart2();
+doPart2();
