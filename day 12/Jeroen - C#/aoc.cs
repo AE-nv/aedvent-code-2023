@@ -17,9 +17,9 @@ long Count(Item item) => CountImpl([], item, new(0, 0, 0));
 
 long CountImpl(ConcurrentDictionary<Key, long> cache, Item item, Key key)
 {
-    if (cache.TryGetValue(key, out long c))
-        return c;
-    var count = (item.GetCharOrDefault(key.i), key.cnt - item.numbers.Length) switch
+    if (cache.TryGetValue(key, out long count))
+        return count;
+    count = (item.GetCharOrDefault(key.i), key.cnt - item.numbers.Length) switch
     {
         (null, _) => item.numbers.Length == key.cnt ? 1 : 0,
         ('#', _) => CountImpl(cache, item, new(key.i + 1, key.cur + 1, key.cnt)),
