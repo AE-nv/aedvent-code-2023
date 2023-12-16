@@ -1,9 +1,5 @@
 import sys
 
-# follow the beam, if it splits follow the one until it stops or encounters somewhere+direction its been
-# then follow the other beam
-# count all unique locations its been
-
 def get_next(map, r, c, dr, dc):
     next = [((r+dr,c+dc),(dr,dc))]
     if map[r][c] == '-' and dr != 0:
@@ -45,12 +41,10 @@ with open(sys.argv[1]) as f:
     max_energized = 0
     for r in range(len(contraption)):
         left = energized(contraption,r,0,0,1)
-        max_energized = max(left, max_energized)
         right = energized(contraption,r,len(contraption[0])-1,0,-1)
-        max_energized = max(right, max_energized)
+        max_energized = max(left, right, max_energized)
     for c in range(len(contraption[0])):
         top = energized(contraption,0,c,1,0)
-        max_energized = max(top, max_energized)
         bottom = energized(contraption,len(contraption)-1,c,-1,0)
-        max_energized = max(bottom, max_energized)
+        max_energized = max(top, bottom, max_energized)
     print(max_energized)
