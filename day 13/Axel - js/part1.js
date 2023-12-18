@@ -26,51 +26,39 @@ function splitPattern(input) {
   return result;
 }
 
-function getHorizontalMirrorLine(pattern, isReversed = false) {
-  const temp = pattern;
-  let amountOfRemovedLines = 0;
-  while (temp.length > 1) {
-    let part1;
-    let part2;
-    if (temp.length % 2 === 0) {
-      part1 = temp.slice(0, temp.length / 2);
-      part2 = temp.slice(temp.length / 2);
-    } else {
-      part1 = temp.slice(0, temp.length / 2);
-      part2 = temp.slice(temp.length / 2 + 1);
-    }
-    const reversedPart2 = part2.reverse();
-    if (part1.every((char, i) => char === reversedPart2[i])) {
-      return Math.floor(temp.length / 2) + amountOfRemovedLines;
-    }
-    amountOfRemovedLines++;
-    if (isReversed) {
-      temp.pop();
-    } else {
-      temp.shift();
+export function getHorizontalMirror(pattern) {
+  for (let rowIndex = 0; rowIndex < pattern.length - 1; rowIndex++) {
+    if (isIndexMirrorLine(pattern, rowIndex)) {
+      return rowIndex + 1;
     }
   }
   return 0;
 }
 
-export function getHorizontalMirror(pattern) {
-  return Math.max(
-    getHorizontalMirrorLine(pattern, false),
-    getHorizontalMirrorLine(pattern, true)
-  );
+export function isIndexMirrorLine(pattern, i) {
+  const nbRows = pattern.length;
+  const nbCols = pattern[0].length;
+  for (let colIndex = 0; colIndex < nbCols; colIndex++) {
+    for (let rowIndex = 0; rowIndex < nbRows; rowIndex++) {
+      const mirroredRowIndex = i * 2 + 1 - rowIndex;
+      if (mirroredRowIndex < 0 || mirroredRowIndex >= nbRows) {
+        continue;
+      }
+      if (pattern[rowIndex][colIndex] !== pattern[mirroredRowIndex][colIndex]) {
+        return false;
+      }
+    }
+  }
+  return true;
 }
 
 export function getVerticalMirror(pattern) {
   const transposed = transpose(pattern);
-  return Math.max(
-    getHorizontalMirrorLine(transposed, false),
-    getHorizontalMirrorLine(transposed, true)
-  );
+  return getHorizontalMirror(transposed);
 }
 
 export function transpose(pattern) {
   return Object.keys(pattern[0])
-    .map((c) => pattern.map((r) => r[c]))
-    .map((line) => line.reverse())
+    .map((columnIndex) => pattern.map((row) => row[columnIndex]))
     .map((line) => line.join(""));
 }
