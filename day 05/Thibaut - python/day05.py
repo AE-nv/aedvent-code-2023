@@ -23,6 +23,55 @@ def find_locations(seeds, mappings, initial_start, end):
     return locations
 
 
+def find_projected_ranges(value_range, mapping):
+    start = value_range[0]
+    target = value_range[1]
+    projected_ranges = []
+    while start != target:
+        something_was_mapped = False
+        for destination, source, mapped_range in mapping:
+            if source <= start < source + mapped_range:
+                offset = start - source
+                if source + mapped_range > target:
+                    projected_ranges.append([destination + offset, destination + offset + target - start])
+                    start = target
+                else:
+                    projected_ranges.append([destination + offset, destination + mapped_range])
+                    start = source + mapped_range
+                something_was_mapped = True
+                break
+        if not something_was_mapped:
+            for _, source, _ in mapping:
+                if source > start:
+                    projected_ranges.append([start, source])
+                    start = source
+                    something_was_mapped = True
+                    break
+        if not something_was_mapped:
+            projected_ranges.append([start, target])
+            start = target
+    # print(projected_ranges)
+    return projected_ranges
+
+
+def find_projected_ranges_source_to_target(values, mappings, source, target):
+    value_ranges = []
+    for i in range(0, len(values), 2):
+        value_ranges.append([values[i], values[i] + values[i + 1]])
+
+    while source != target:
+        projections = []
+        for key in mappings.keys():
+            if key.startswith(source):
+                source = key.split("-")[-1]
+                break
+        for value_range in value_ranges:
+            projected_ranges = find_projected_ranges(value_range, mappings[key])
+            projections.extend(projected_ranges)
+        value_ranges = copy.deepcopy(projections)
+    return value_ranges
+
+
 if __name__ == '__main__':
     with open("day05.txt", 'r') as f:
         data = f.readlines()
@@ -34,40 +83,19 @@ if __name__ == '__main__':
         if l.rstrip().endswith(":"):
             mapping_key = l.rstrip().split()[0]
             mappings[mapping_key] = []
-        elif l.rstrip()=="":
+        elif l.rstrip() == "":
             continue
         else:
-            mappings[mapping_key].append([int(n) for n in l .rstrip().split()])
+            mappings[mapping_key].append([int(n) for n in l.rstrip().split()])
 
-    pprint.pprint(mappings)
+    for _, mapping_ranges in mappings.items():
+        mapping_ranges.sort(key=lambda mapping_range: mapping_range[1])
 
-    locations = find_locations(seeds, mappings, "seed", "location")
-    print(min(locations))
+    singular_seeds = [int(s) for s in (' 1 '.join([str(i) for i in seeds])+' 1 ').split()]
+    part1 = min([projection_start for projection_start, _ in
+                     find_projected_ranges_source_to_target(singular_seeds, mappings, "seed", "location")])
+    print("PART 1: " + str(part1))
 
-    reversed_mapping={}
-    for key, range_descriptions in mappings.items():
-        reversed_key = "-".join(key.split('-')[::-1])
-        reversed_mapping[reversed_key] = []
-        for range_description in range_descriptions:
-            destination, source, range_size = range_description
-            reversed_mapping[reversed_key].append([source, destination, range_size])
-
-    # pprint.pprint(reversed_mapping)
-
-    print(find_locations([46], reversed_mapping, "location", "seed"))
-
-    actual_seeds = [(seeds[i], seeds[i+1]) for i in range(0, len(seeds), 2)]
-
-    found=False
-    target = -1
-    while not found:
-        target+=1
-        seed = find_locations([target], reversed_mapping, "location", "seed")[0]
-        for seed_start, seed_range in actual_seeds:
-            if seed_start <= seed < seed_start+seed_range:
-                found=True
-        print(target)
-    print(target)
-    print(seed)
-
-
+    part2 = min([projection_start for projection_start, _ in
+                 find_projected_ranges_source_to_target(seeds, mappings, "seed", "location")])
+    print("PART 2: " + str(part2))
