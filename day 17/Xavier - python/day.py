@@ -49,8 +49,6 @@ def dijkstra(map, start, goal, part):
     while len(priority_q) > 0:
         loss = min(priority_q.values())
         node = [n for n in priority_q.keys() if priority_q[n] == loss][0]
-        if node[0][0] % 100 == 0:
-            print(node, loss)
         if node[0] == goal:
             # needs to move at least 4 steps in part 2 to be able to stop at ending
             if part == 1 or node[-1] >= 4:
@@ -67,8 +65,8 @@ with open(sys.argv[1]) as f:
     blocks = [[int(x) for x in line] for line in f.read().splitlines()]
 
     gr, gc = len(blocks)-1, len(blocks[-1])-1
-    # heat_loss = dijkstra(blocks, (0,0), (gr,gc), 1)
-    # print(heat_loss)
+    heat_loss = dijkstra(blocks, (0,0), (gr,gc), 1)
+    print(heat_loss)
     heat_loss = dijkstra(blocks, (0,0), (gr,gc), 2)
     print(heat_loss)
     
